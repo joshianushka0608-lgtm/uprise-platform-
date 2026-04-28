@@ -63,8 +63,10 @@ Railway is the easiest way to deploy a Node.js backend with a database.
 ### 2b: Configure backend deployment
 1. In Railway, go to your deployment
 2. **Root Directory:** `backend`
-3. **Build Command:** `npm install`
-4. **Start Command:** `npm start` (or `npx tsx src/index.ts` for dev)
+3. **Build Command:** `bun install` (or `npm install`)
+4. **Start Command:** `bun run start` (or `npx tsx src/index.ts`)
+
+> Note: The backend uses `sql.js` (pure JavaScript SQLite) so no native module compilation is needed — works on all platforms including Railway.
 
 ### 2c: Add environment variables
 In Railway project settings → Variables, add:

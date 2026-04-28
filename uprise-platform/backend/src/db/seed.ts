@@ -1,5 +1,7 @@
+import { initDatabase } from "./index.js";
 import db from "./index.js";
 import { v4 as uuidv4 } from "uuid";
+import bcrypt from "bcryptjs";
 
 // Seed categories
 const categories = [
@@ -18,37 +20,43 @@ const categories = [
   { name: "Other", slug: "other", icon: "📌" },
 ];
 
-const insertCategory = db.prepare(
-  "INSERT OR IGNORE INTO categories (id, name, slug, icon) VALUES (?, ?, ?, ?)"
-);
+async function seed() {
+  // Wait for DB to be ready
+  await initDatabase();
 
-for (const cat of categories) {
-  insertCategory.run(uuidv4(), cat.name, cat.slug, cat.icon);
-}
-
-// Seed a demo admin user
-import bcrypt from "bcryptjs";
-const demoEmail = "demo@uprise.app";
-const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(demoEmail);
-
-if (!existing) {
-  const hash = await bcrypt.hash("demo1234", 10);
-  db.prepare(`
-    INSERT INTO users (id, email, password_hash, name, phone, bio, city, state, is_active)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).run(
-    uuidv4(),
-    demoEmail,
-    hash,
-    "Demo User",
-    "+919876543210",
-    "Exploring the UpRise platform!",
-    "Mumbai",
-    "Maharashtra",
-    1
+  const insertCategory = db.prepare(
+    "INSERT OR IGNORE INTO categories (id, name, slug, icon) VALUES (?, ?, ?, ?)"
   );
-  console.log("✅ Demo user created: demo@uprise.app / demo1234");
+
+  for (const cat of categories) {
+    insertCategory.run(uuidv4(), cat.name, cat.slug, cat.icon);
+  }
+
+  // Seed a demo admin user
+  const demoEmail = "demo@uprise.app";
+  const existing = db.prepare("SELECT id FROM users WHERE email = ?").get(demoEmail);
+
+  if (!existing) {
+    const hash = await bcrypt.hash("demo1234", 10);
+    db.prepare(`
+      INSERT INTO users (id, email, password_hash, name, phone, bio, city, state, is_active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      uuidv4(),
+      demoEmail,
+      hash,
+      "Demo User",
+      "+919876543210",
+      "Exploring the UpRise platform!",
+      "Mumbai",
+      "Maharashtra",
+      1
+    );
+    console.log("✅ Demo user created: demo@uprise.app / demo1234");
+  }
+
+  console.log("✅ Database seeded with categories");
+  console.log(`📁 Database location: ${process.cwd()}/data/uprise.db`);
 }
 
-console.log("✅ Database seeded with categories");
-console.log(`📁 Database location: ${process.cwd()}/data/uprise.db`);
+seed().catch(console.error);

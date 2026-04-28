@@ -7,5 +7,13 @@ const nextConfig = {
   images: {
     domains: ['localhost', 'api.corntub.xyz'],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://localhost:3001/api/:path*',
+      },
+    ];
+  },
 };
 module.exports = nextConfig;

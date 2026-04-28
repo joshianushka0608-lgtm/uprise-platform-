@@ -8,9 +8,12 @@ import { fileURLToPath } from "url";
 // Import routes
 import authRoutes from "./routes/auth.js";
 import userRoutes from "./routes/users.js";
+import googleRoutes from "./routes/google.js";
+import taskRoutes from "./routes/tasks.js";
+import mentorRoutes from "./routes/mentors.js";
 
-// Initialize database
-import "./db/index.js";
+// Initialize database (async — waits for sql.js to load)
+import { initDatabase } from "./db/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -53,7 +56,10 @@ app.get("/health", (_req, res) => {
 
 // API routes
 app.use("/api/auth", authRoutes);
+app.use("/api/auth", googleRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/mentors", mentorRoutes);
 
 // Categories route
 import db, { Category } from "./db/index.js";
@@ -73,7 +79,8 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: "Internal server error" });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await initDatabase();
   console.log(`🚀 UpRise API running on http://localhost:${PORT}`);
   console.log(`📁 Database: ${process.cwd()}/data/uprise.db`);
   console.log(`🔐 JWT Secret: ${process.env.JWT_SECRET ? "✅ Set" : "⚠️ Using fallback — set JWT_SECRET in .env"}`);
