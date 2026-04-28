@@ -325,7 +325,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <div className="text-2xl font-bold text-accent">
-              {profile.reviews?.length ?? 0}
+              {0}
             </div>
             <div className="text-sm text-slate-500">Reviews</div>
           </div>
